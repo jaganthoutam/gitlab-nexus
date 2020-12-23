@@ -1,0 +1,17 @@
+variables:
+  NEXUS_URL: XXX
+  NEXUS_USER: XXX
+  NEXUS_PWD: XXX
+  SNAPSHOT_DEPLOYMENT_REPOSITORY: ${NEXUS_URL}/repository/maven-snapshots/
+  RELEASE_DEPLOYMENT_REPOSITORY: ${NEXUS_URL}/repository/maven-releases/
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode --errors --fail-at-end --show-version"
+  MAVEN_CLI_POST_OPTS: "-Dnexus.url=${NEXUS_URL} -Dmaven.repo.local=.m2"
+
+deploy:
+  stage: deploy
+  image: maven:3.5.3-alpine
+  script:
+    # source:jar attach source and javadoc artifacts
+    - mvn $MAVEN_CLI_OPTS source:jar deploy -Dnexus_user=${NEXUS_USER} -Dnexus_pwd=${NEXUS_PWD} -DsnapshotDeploymentRepository=$SNAPSHOT_DEPLOYMENT_REPOSITORY -DreleaseDeploymentRepository=$RELEASE_DEPLOYMENT_REPOSITORY -DskipTests ${MAVEN_CLI_POST_OPTS}
+  only:
+    - master
